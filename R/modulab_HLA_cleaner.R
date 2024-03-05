@@ -31,9 +31,11 @@ modulab_HLA_cleaner <- function(x = "HLA_baja"){
   #Sustituye ", ," por ", -" ya que en algún caso el homocigoto se estaba señalando originalmente por "." en vez de "-" y este fue cambiado a "-" en la línea anterior
   df[, -1] <- lapply(df[, -1], function(x) gsub(",\\s*\\,", ", -", x))
   #Encuentra patrones correspondientes a alelos que esten separados por un espacio y los separa por ", "
-  df[, -1] <- lapply(df[, -1], function(x) gsub("([0-9]{1,2})\\s+\\*", "\\1, ", x))
-  #Encuentra patrones de correspondientes a tipajes serologicos del tipo "*XX, *YY" y elimina todo lo que haya a continuación
+  df[, -1] <- lapply(df[, -1], function(x) gsub("([0-9]{1,2})\\s+\\*", "\\1, \\*", x))
+  #Encuentra patrones correspondientes a tipajes serologicos del tipo "*XX, *YY" y elimina todo lo que haya a continuación
   df[, -1] <- lapply(df[, -1], function(x) gsub("(\\*\\d{1,2}, \\*\\d{1,2}).*", "\\1", x))
+  #Encuentra patrones XXY donde XX son 1 o 2 cifras e Y es una letra cualquier y elimina la letras, se eliminan así anotaciones de expresion alternativa de alelos (p.e. A*03:35N)
+  df[, -1] <- lapply(df[, -1], function(x) gsub("([0-9]{1,2})[A-Za-z]", "\\1", x))
   #Renombramos las columnas para eliminar el termino "LOCUS " y usar la nomenclatura que usa hlapro::upscale_typings()
   names(df) <- c("Número", "A", "B", "C", "DRB1", "DRB345","DQB1", "DQA")
 
