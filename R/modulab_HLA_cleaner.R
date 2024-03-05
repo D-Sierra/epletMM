@@ -92,6 +92,16 @@ modulab_HLA_cleaner <- function(x = "HLA_baja"){
     }
   }
 
+  #Evaluamos un criterio de minimo de loci tipados para poder hacer la imputacion, que seran A, B y DR
+  df$min_loci_allowed <- TRUE
+  for (i in 1:nrow(df_serology)){
+    if(any(is.na(df_serology[i,c("A1", "A2", "B1", "B2", "DRB11", "DRB12")]))){
+      df[i, "min_loci_allowed"] <- FALSE
+    }
+  }
+  #Filtramos la matriz serológica solo cuando cumpla el criterio de minimos loci tipados
+  df_serology <- subset(df_serology, df$min_loci_allowed == TRUE)
+
   # Iterar sobre las filas y columnas del dataframe
   for (i in 1:nrow(df_serology)) {
     for (j in 2:ncol(df_serology)) {
