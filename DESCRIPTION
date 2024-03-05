@@ -17,3 +17,5 @@ Imports:
     magrittr,
     tidyr,
     dplyr
+URL: https://github.com/D-Sierra/epletMM
+BugReports: https://github.com/D-Sierra/epletMM/issues
