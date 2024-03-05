@@ -1,0 +1,19 @@
+Package: epletMM
+Type: Package
+Title: Bulk HLA high resolution imputation and eplet analysis
+Version: 0.1.1
+Author: Daniel Álvarez de la Sierra
+Maintainer: Daniel Álvarez de la Sierra <dalvarez@idival.org>
+Description: Taking HLA typing data imported from Modulab software functions provided are able to: curate,
+    sort and impute high resolution typing for each individual with at least HLA low resolution
+    typing for A,B and DRB1 loci; high resolution typing can be used to assign eplet present in each allele, 
+    calculate unique eplets for each patient at HLA class I and class II loci; and epletMM allows virtual 
+    crossmatch between pairs of donor and recipients to calculate eplet missmatch.
+License: GPL (>= 3)
+Encoding: UTF-8
+Imports:
+    readxl,
+    hlapro,
+    magrittr,
+    tidyr,
+    dplyr
