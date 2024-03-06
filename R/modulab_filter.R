@@ -1,4 +1,4 @@
-modulab_HLA_cleaner <- function(x = "HLA_baja"){
+modulab_filter <- function(x = "HLA_baja"){
   #Se evalua las columnas para todos los loci (pe.LOCUS A) existe en la tabla, de no ser así se crea
   loci_HLA <- c("LOCUS A", "LOCUS B", "LOCUS C", "LOCUS DRB1", "LOCUS DRB345","LOCUS DQB1", "LOCUS DQA1")
 
@@ -66,64 +66,6 @@ modulab_HLA_cleaner <- function(x = "HLA_baja"){
       df[[col]][!is.na(df[[col]])] <- paste0(locus, df[[col]][!is.na(df[[col]])])
     }
   }
-
-  #Algunos loci pueden tener un alelo tipado en resolución intermedia y otros en resolución baja, esto imposibilita su uso para la imputación
-  #Loop para rebajar la resolución de alelos de intermedia a baja
-  df_serology <- df
-  for (i in 1:nrow(df_serology)) {
-    for (j in 2:ncol(df_serology)){
-      if (grepl(":", df_serology[i, j])){
-        df_serology[i,j] <- hlapro::get_serology(df[i,j])
-      }
-    }
-  }
-
-  #Algunos alelos serólogicos del locus C no son reconocidos correctamente por hlapro::upscale_typings() y devuelve un resultado nulo
-  #Por esta razón es mejor eliminar estos alelos (Cw8, Cw11, Cw13, Cw16 y Cw17) antes de la imputación
-  #Creamos un nueva columna en df para guardar los tipajes que se han obtenido sin tener en cuenta el locus C
-  df$Cw_ignored <- FALSE
-  #Se evalua si alguno de estos alelos se encuentra en las columnas C1 o C2, y en caso afirmativo se asigna NA en df_serology y TRUE al registro en df
-  for (i in 1:nrow(df_serology)){
-    if (any(c("C*8", "C*11", "C*13", "C*16", "C*17") %in% df_serology[i, "C1"] |
-        c("C*8", "C*11", "C*13", "C*16", "C*17") %in% df_serology[i, "C2"])){
-      df_serology[i, "C1"] <- NA
-      df_serology[i, "C2"] <- NA
-      df[i,"Cw_ignored"] <- TRUE
-    } else {
-      next
-    }
-  }
-
-  #Evaluamos un criterio de minimo de loci tipados para poder hacer la imputacion, que seran A, B y DR
-  df$min_loci_allowed <- TRUE
-  for (i in 1:nrow(df_serology)){
-    if(any(is.na(df_serology[i,c("A1", "A2", "B1", "B2", "DRB11", "DRB12")]))){
-      df[i, "min_loci_allowed"] <- FALSE
-    }
-  }
-  #Filtramos la matriz serológica solo cuando cumpla el criterio de minimos loci tipados
-  df_serology <- subset(df_serology, df$min_loci_allowed == TRUE)
-
-  # Iterar sobre las filas y columnas del dataframe
-  for (i in 1:nrow(df_serology)) {
-    for (j in 2:ncol(df_serology)) {
-
-      # Obtener el valor de la celda actual
-      valor_celda <- df_serology[i, j]
-
-      # Verificar si el valor no es nulo
-      if (!is.na(valor_celda)) {
-        # Aplicar las sustituciones usando gsub
-        df_serology[i, j] <- gsub("^C\\*|^Cw", "Cw*", valor_celda)
-        df_serology[i, j] <- gsub("^DRB1\\*|^DR", "DR*", df_serology[i, j])
-        df_serology[i, j] <- gsub("^DQB1\\*|^DQ", "DQ*", df_serology[i, j])
-        df_serology[i, j] <- gsub("^B(\\d+)", "B*\\1", df_serology[i, j])
-        df_serology[i, j] <- gsub("^A(\\d+)", "A*\\1", df_serology[i, j])
-      }
-    }
-  }
-
-  #Añadimos a cada celda el prefijo de locus correspondiente (pe. A, B, C...)
-
-  return(curated = list(df, df_serology))
+  mixed_reso <- df
+  return(mixed_reso)
 }
