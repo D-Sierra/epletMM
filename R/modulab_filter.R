@@ -24,6 +24,8 @@ modulab_filter <- function(x = "HLA_baja"){
   df[, -1] <- lapply(df[, -1], function(x) gsub("\\*-", "-", x))
   #Sustituye ":-" encontrado por ", -"
   df[, -1] <- lapply(df[, -1], function(x) gsub(":\\s*-", ", -", x))
+  #Sustituye "," al final de un tipaje por ", -"  para indicar el homocigoto (p.e. "*05," por "*05, -")
+  df[, -1] <- lapply(df[, -1], function(x) gsub(",$", ", -", x))
   #Sustituye "Homocigoto" por ", -"
   df[, -1] <- lapply(df[, -1], function(x) gsub(" Homocigoto", ", -", x))
   #Sustituye todos los "." por "," para separar alelos
@@ -36,6 +38,8 @@ modulab_filter <- function(x = "HLA_baja"){
   df[, -1] <- lapply(df[, -1], function(x) gsub("(\\*\\d{1,2}, \\*\\d{1,2}).*", "\\1", x))
   #Encuentra patrones XXY donde XX son 1 o 2 cifras e Y es una letra cualquier y elimina la letras, se eliminan así anotaciones de expresion alternativa de alelos (p.e. A*03:35N)
   df[, -1] <- lapply(df[, -1], function(x) gsub("([0-9]{1,2})[A-Za-z]", "\\1", x))
+  #Encuentra patrones cifras precedidas de espacios sin estar precedidas de "*" y añade "*" (p.e. "*01:01, 14" pasa "*01:01, *14"
+  df[, -1] <- lapply(df[, -1], function(x) gsub("\\s([0-9]{1,2})", "\\*\\1", x))
   #Renombramos las columnas para eliminar el termino "LOCUS " y usar la nomenclatura que usa hlapro::upscale_typings()
   names(df) <- c("Número", "A", "B", "C", "DRB1", "DRB345","DQB1", "DQA")
 
