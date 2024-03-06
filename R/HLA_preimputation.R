@@ -94,7 +94,9 @@ HLA_preimputation <- function(df = "mixed_reso"){
   # Print the accumulated information about failed elements
   if (length(failed_elements_info) > 0) {
     failed_elements_info <- paste(failed_elements_info, collapse = ", ")
-    warning(paste("Details of failed elements:", (failed_elements_info)))
+    warning(paste("Elements that failed quality test:", (failed_elements_info)))
+  } else {
+    message("Quality test passed for all loci.")
   }
 
 
