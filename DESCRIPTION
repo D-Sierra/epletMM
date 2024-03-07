@@ -1,7 +1,7 @@
 Package: epletMM
 Type: Package
 Title: Bulk HLA high resolution imputation and eplet analysis
-Version: 0.1.1
+Version: 0.1.2
 Author: Daniel Álvarez de la Sierra
 Maintainer: Daniel Álvarez de la Sierra <dalvarez@idival.org>
 Description: Taking HLA typing data imported from Modulab software functions provided are able to: curate,
