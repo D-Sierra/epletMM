@@ -21,7 +21,9 @@ Las funciones contenidas en este paquete están pensadas para realizar las sigui
 
     -   Debe de existir una columna con un identificador único para cada individuo y su nombre debe de ser "Número", por defecto una exportación de Modulab debería de proporcionar el número de historía clínica en una columna usando este nombre.
     -   No es necesario que los tipajes contengan información sobre todos los loci, ni que la tabla contenga las columnas para todos ellos. Sin embargo, los nombres de las columnas de los loci que deseemos incluir en el análisis deben de ser los siguiente: LOCUS A, LOCUS B, LOCUS C, LOCUS DPB1, LOCUS DQA1, LOCUS DQB1, LOCUS DRB1.
+## Esquema de flujo de trabajo
 
+<a href="https://D-sierra.github.io/epletMM/"><img src="man/figures/Pipeline de análisis.png" height="500" alt="pipeline" /></a>
 ## Instalación
 
 ```{r}
