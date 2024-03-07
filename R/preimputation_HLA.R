@@ -1,4 +1,4 @@
-HLA_preimputation <- function(df = "mixed_reso"){
+preimputation_HLA <- function(df = "mixed_reso"){
 
   #Loop para rebajar la resolución de alelos de intermedia a baja
   df_serology <- df

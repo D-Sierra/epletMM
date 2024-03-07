@@ -1,4 +1,4 @@
-assign_eplets <- function(hres_df, verified = "Yes"){
+eplet_assignment <- function(hres_df, verified = "Yes"){
   #Evalua que el argumento verief tome los valores "Yes" solo para eplets verificados por anticuerpo o "All" que incluye a todos
   allowed_values <- c("Yes", "All")
   verify <- match.arg(verified, allowed_values)

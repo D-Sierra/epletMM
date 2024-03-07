@@ -1,4 +1,4 @@
-HLA_vec <- function(df){
+vectorization_HLA <- function(df){
   low_list <- list()
   #Loop que itera las filas del dataframe df
   for (i in 1:nrow(df)){

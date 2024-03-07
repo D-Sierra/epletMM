@@ -56,5 +56,38 @@ bulk_upscaling <- function(low_list = "low_list", df = "subdf1", haplotypes_path
       }
     }
   }
+
+  #Tabla de equivalencias para alelos DQB1, DRB1, DQA1
+  equivalence_table <- data.frame(
+    DQB1 = c(".*\\*02:01.*", ".*\\*02:02.*", ".*\\*02:02.*", ".*\\*03:01.*", ".*\\*03:01.*", ".*\\*03:02.*", ".*\\*03:03.*", ".*\\*03:03.*", ".*\\*03:19.*", ".*\\*04.*", ".*\\*04.*",
+             ".*\\*05:01.*", ".*\\*05:02.*", ".*\\*05:03.*", ".*\\*06:01.*", ".*\\*06:02.*", ".*\\*06:03.*", ".*\\*06:04.*", ".*\\*06:08.*", ".*\\*06:09.*"),
+    DRB1 = c(NA, ".*\\*04:05.*", "^(?!.*\\*04:05).*$", ".*\\*04:01.*", "^(?!.*\\*04:01).*$", NA, ".*\\*07:01.*", "^(?!.*\\*07:01).*$", NA,  ".*\\*08.*",
+             "^(?!.*\\*08).*$", NA, NA,NA,NA,NA,NA,NA,NA,NA),
+    DQA1 = c("DQA1*05:01", "DQA1*03:01", "DQA1*02:01", "DQA1*03:01", "DQA1*05:01", "DQA1*03:01", "DQA1*02:01","DQA1*03:01", "DQA1*05:05", "DQA1*04:01", "DQA1*03:01", "DQA1*01:01", "DQA1*01:02",
+             "DQA1*01:01", "DQA1*01:01", "DQA1*01:02", "DQA1*01:03", "DQA1*01:02", "DQA1*01:01", "DQA1*01:01")
+  )
+
+  #Asignación de DQA1 en base al tipaje de DQB1 y DRB1
+  for (i in 1:nrow(df)) {
+    for (j in 1:2) {
+      dqb_value <- ifelse(j == 1, df[i, "DQB11"], df[i, "DQB12"])
+      drb_value <- paste(df[i, "DRB11"], ", ", df[i, "DRB12"])
+
+      index <- which(sapply(equivalence_table[, "DQB1"], function(x) any(grepl(x, dqb_value, perl = TRUE))))
+
+      if (length(index) == 1) {
+        df[i, ifelse(j == 1, "DQA1", "DQA2")] <- equivalence_table[index, "DQA1"]
+      } else if (length(index) > 1) {
+        index2 <- sapply(equivalence_table[index, "DRB1"], function(regex) any(grepl(regex, drb_value, perl = TRUE)))
+        if (any(index2)) {
+          df[i, ifelse(j == 1, "DQA1", "DQA2")] <- equivalence_table[index[index2], "DQA1"]
+        } else {
+          next
+        }
+      } else {
+        next
+      }
+    }
+  }
   return(df)
 }
