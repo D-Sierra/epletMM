@@ -68,6 +68,7 @@ preimputation_HLA <- function(df = "mixed_reso"){
 
   failed_elements_info <- character(0)
 
+  #Comprueba para cada locus si todos los alelos de df_serology tienen una estrutura compatible con un alelo correcto
   for (i in seq_along(loci_test)) {
     column_name <- names(loci_test)[i]
     pattern <- checks[i]
@@ -80,7 +81,7 @@ preimputation_HLA <- function(df = "mixed_reso"){
       loci_test[[column_name]] <- "FAIL"
       warning(paste("Loci test failed for column ", column_name))
 
-      # Append information about each failed element to the vector
+      #Registra los elementos que no han pasado el control de calidad en el vector failed_elements
       failed_elements <- df_serology[!condition_result, c("Número", column_name)]
       for (j in seq_len(nrow(failed_elements))) {
         failed_elements_info <- c(
@@ -91,7 +92,7 @@ preimputation_HLA <- function(df = "mixed_reso"){
     }
   }
 
-  # Print the accumulated information about failed elements
+  #Imprimir la información de los elementos que eno han pasado el control de calidad
   if (length(failed_elements_info) > 0) {
     failed_elements_info <- paste(failed_elements_info, collapse = ", ")
     warning(paste("Elements that failed quality test:", (failed_elements_info)))
