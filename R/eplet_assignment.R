@@ -36,6 +36,7 @@ eplet_assignment <- function(hres_df, verified = "Yes"){
     collapsed_str <- paste(non_na_unique_vals, collapse = " ")
     return(collapsed_str)
   }
+
   #Aplicar la función split_unique_collapse a las columnas HLA_I_eplets y HLA_II_eplets
   eplet_assignment$HLA_I_eplets <- apply(eplet_assignment[HLA_I_indices], 1, split_unique_collapse)
   eplet_assignment$HLA_II_eplets <- apply(eplet_assignment[HLA_II_indices], 1, split_unique_collapse)
