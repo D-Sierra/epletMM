@@ -100,6 +100,8 @@ preimputation_HLA <- function(df = "mixed_reso"){
     message("Quality test passed for all loci.")
   }
 
+  #Reordenamos las columnas de df
+  df %<>% select(Número, Cw_ignored, min_loci_allowed, everything())
 
   return(curated = list(df, df_serology, loci_test))
 }

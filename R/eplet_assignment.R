@@ -5,18 +5,21 @@ eplet_assignment <- function(hres_df, verified = "Yes"){
 
   #Inicialización del data frame
   eplet_assignment <- data.frame(Número = hres_df$Número,
-                                 setNames(data.frame(matrix(NA, nrow = nrow(hres_df), ncol = ncol(hres_df) - 1)), paste0(names(hres_df)[-1], "_eplets")))
+                                 setNames(data.frame(matrix(NA, nrow = nrow(hres_df), ncol = sum(!(names(hres_df) %in% c("Número", "min_loci_allowed", "Cw_ignored"))))),
+                                          paste0(names(hres_df)[!(names(hres_df) %in% c("Número", "min_loci_allowed", "Cw_ignored"))], "_eplet")))
 
-  df_eplets <- hlapro::load_eplet_registry() # Cargar la base de datos de eplets de HLA eplet registry
+  #Cargar la base de datos de eplets de HLA eplet registry
+  df_eplets <- hlapro::load_eplet_registry()
   if (verified == "Yes"){
     df_eplets <- subset(df_eplets, df_eplets$confirmation == "Yes")
   } else {
     next
   }
+
   # Loop para asignar eplets a cada celda de eplet_assignment
   for (i in 1:nrow(hres_df)){
-    for (j in 2:ncol(hres_df)){
-      eplet_assignment[i, j] <- paste(hlapro::lookup_eplets(df_eplets, hres_df[i, j])[[1]], collapse = " ")
+    for (j in 4:ncol(hres_df)){ # j in 2:17
+      eplet_assignment[i, j-2] <- paste(hlapro::lookup_eplets(df_eplets, hres_df[i, j])[[1]], collapse = " ")
     }
   }
   #Convertimos todas las celdas vacias a NA

@@ -6,7 +6,7 @@ vectorization_HLA <- function(df){
 
     #Loop anidado que itera por las celdas de la fila i, comprueba si cada celda contiene el simbolo : y si NO lo tiene lo añade a HLAlist
     #Ignoramos de esta manera los alelos que ya estan en resolución intermedia
-    for(j in 2:13){
+    for(j in 2:ncol(df)){
       if (!grepl(":", df[i,j], fixed = TRUE)){
         cell <- df[i,j]
         #Todas las celdas (j) que cumplan la condición para la fila i se añaden a una lista temporal denominada HLAlist
