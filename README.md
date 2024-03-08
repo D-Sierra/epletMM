@@ -6,7 +6,7 @@ Esta librería proporciona una serie de herramientas para trabajar con datos de 
 Las funciones contenidas en este paquete están pensadas para realizar las siguientes operaciones:
 
 -   Preprocesar un archivo excel que contenga información de tipajes HLA
--   Automatizar la imputación a alta resolución de los loci A, B, C, DRB1, DR345 y DQB
+-   Automatizar la imputación a alta resolución de los loci A, B, C, DRB1, DR345, DQB1 y DQA1.
 -   Automatizar la asignación de eplets de tipajes HLA de alta resolución
 -   Realizar el crossmatch virtual entre parejas donante/receptor y calcular el missmatch (MM) a nivel de eplets
 
@@ -17,11 +17,20 @@ Las funciones contenidas en este paquete están pensadas para realizar las sigui
     -   `upscale_typings()` requiere descargar previamente la información sobre la frecuencia de haplotipos proporcionada por NMDP de la siguiente [web](https://frequency.nmdp.org/). Una vez registrado veremos un listado de posibles archivos para descargar, es necesario seleccionar el formato .xlsx que contiene la información para los loci A, B, C, DRB1, DR345, DQB1 (HLA\-A\~C\~B\~DRB3\-4-5\~DRB1\~DQB1).
     -   `load_eplet_registry()` realiza un scrapping de la base de datos HLA Eplet Registry y descarga una tabla con el listado de eplets descritos hasta el momento si esta no existe ya de forma local. Cualquier actualización en la web HLA Eplet Registry que altere su estructura puede imposibilitar la descargar de la información de eplets necesaria en la primera ejecución de la función en un nuevo equipo. Para estos casos este paquete contiene la última versión actualizada del registro de eplets a fecha 03/03/2024, este archivo (eplets.rds) debe copiarse a la carpeta cache de la librería hlapro, normalmente localizada el directorio \~/AppData/Local/R/cache/R/hlapro/ dentro del usuario correspondiente.
 
-2.  En su versión actual (0.1.0) la única función disponible para el preprocesamiento de datos con tipajes HLA es `modulab_HLA_cleaner()`, esta función toma como argumento un dataframe obtenido a partir de una exportación de datos del LIS Modulab. La tabla cargada en este dataframe puede contener cualquier número de columnas, pero debe de cumplir ciertos requisitos:
+2.  En su versión actual (0.1.2) las funciones disponibles para el preprocesamiento de datos con tipajes HLA son `modulab_filter()` y `preimputation()`. Estas funciones trabajan en serie, la primera toma como argumento un dataframe obtenido a partir de una exportación de datos del LIS Modulab. La tabla cargada en este dataframe puede contener cualquier número de columnas, pero debe de cumplir ciertos requisitos:
 
     -   Debe de existir una columna con un identificador único para cada individuo y su nombre debe de ser "Número", por defecto una exportación de Modulab debería de proporcionar el número de historía clínica en una columna usando este nombre.
     -   No es necesario que los tipajes contengan información sobre todos los loci, ni que la tabla contenga las columnas para todos ellos. Sin embargo, los nombres de las columnas de los loci que deseemos incluir en el análisis deben de ser los siguiente: LOCUS A, LOCUS B, LOCUS C, LOCUS DPB1, LOCUS DQA1, LOCUS DQB1, LOCUS DRB1.
 
+3.  La función `preimputation()`establece ciertas condiciones para realizar la imputación:
+
+    -  Hay ciertos alelos serológicos del locus C que no son admitidos por `hlapro::upscale_typings()` (Cw8, Cw11, Cw13, Cw16 y Cw17) si un genotipo contiene 1 o 2 de estos alelos la información del locus C es eliminada para evitar que falle la imputación de alta resolución. Algunos de estos alelos serológicos tampoco son admitidos por Haplostats.
+    -  La falta de información suficiente de tipaje hace que la imputación no sea precisa y sus resultados no sean fiables, por ello se establece que las muestras tengan tipado por lo menos los loci A, B y DRB1 para realizar la imputación. Las muestras que no cumplan este requisito serán eliminadas del análisis.
+    -  La función añade columnas adicionales al dataframe procesado indicando en que muestras la imputación no se ha realizado por no alcanzar el mínimo de información disponible y cuales se han hecho ignorando el tipaje del locus C.
+  
+## Esquema de flujo de trabajo
+
+<a href="https://D-sierra.github.io/epletMM/"><img src="man/figures/Pipeline de análisis.png" height="500" alt="pipeline" /></a>
 ## Instalación
 
 ```{r}
@@ -42,7 +51,8 @@ En primer lugar nos aseguramos que nuestro archivo (.xlsx o .csv) cumple los req
 ```{r}
 HLA_baja <- read_xls("HLA_baja.xls")
 
-processed_data <- modulab_HLA_cleaner(HLA_baja)
+filtered_df <- modulab_filter(HLA_baja)
+processed_data <- preimputation(filtered_df)
 
 mixed_reso <- processed_data[[1]]
 head(mixed_reso)
@@ -65,13 +75,18 @@ head(low_reso)
 # 4 10205567 A*1   A*2   B*8   B*50  Cw*6  Cw*7  DR*17 DR*7  NA      NA      DQ*2  DQ*2  NA    NA 
 ```
 
-La función `modulab_HLA_cleaner()` devuelve una lista que contiene dos dataframes distintas, para los siguientes pasos es recomendable asignar cada una de ellas a una nueva variable. En este caso:
+La función `preimputation()` devuelve una lista que contiene tres dataframes distintos, para los siguientes pasos es recomendable asignar cada uno de los dos primeros a una nueva variable. En este caso:
 
 -   processed_data[[1]]: es un dataframe que contiene la información del dataframe de partida manteniendo la resolución original para los tipajes HLA. Este dataframe será el actualizado con los nuevos tipajes en alta y la información de eplets.
 -   processed_data[[2]]: tiene la misma estructura, pero todos los tipajes en resolución intermedia o alta han sido transformados en los equivalentes serologicos usando `hlapro:get_serology()`. Este dataframe será utilizado para realizar la imputación de alta resolución, ya que la función `hlapro::upscale_typings()`, al contrario que [HaploStats](https://www.haplostats.org/) no tiene en cuenta aquellos alelos proporcionados ya en alta resolución para realizar la imputación.
+-   processed_data[[3]]: almacena la información del control de calidad.
+  
+**CONTROL DE CALLIDAD**
+`preimputation()` ejecuta un control de calidad de los tipajes de baja resolución contenidos en processed_data[[2]], esto incluye aquellos filtrados desde el df original y los que han sidos imputados mediante `hlapro::getserology()` a partir de datos de resolución alta/media. La función revisa para cada columna correspondiente a un alelo que todas las filas de processed_data[[2]] contengan datos con estructura correcta (p.e. alelos HLA-A deben de tener estructura "^A\\*\\d{1,2}$", que indica que deben de seguir un patrón exacto *A\*XX* donde XX son uno o dos caracteres numericos.
+Si todas las columnas pasan correctamente el test se mostrará un mensaje indicándolo, en caso contrario se imprimirán mensajes de error que informaran que columnas no han pasado el test en su conjunto, y además se mostrará el valor o valores que no cumplen las condiciones de estructura y el número de ID ("Número") asociado para que pueda ser revisado el preprocesamiento.
 
 ```{r}
-typings_vector <- HLA_vec(low_reso)
+typings_vector <- vectorization_HLA(low_reso)
 
 vec[1:2]
 # $`40145308`
@@ -96,7 +111,9 @@ Esta función requiere otros dos argumentos:
 hres_df <- bulk_upscaling(low_list = "low_list", df = "subdf1", haplotypes_path = getwd())
 ```
 
-La función `bulk_upscaling()` devuelve dos tipos de mensaje de advertencia que no impiden que el código se ejecute por completo:
+`bulk_upscaling()` realiza la imputación en dos pasos, en primer lugar se sirve de la función `hlapro::upscale_typings()` para realizar la imputación en alta resolución de los loci A, B, C, DRB1, DRB345 y DQB1. En segundo lugar crea una tabla de equivalencias y asociación de haplotipos para los loci DRB1, DQB1 y DQA1 y realiza la impitación de alta resolución del locus DQA1.
+
+La función devuelve dos tipos de mensaje de advertencia que no impiden que el código termine su ejecución:
 
 -   Al aplicar la función `hlapro::upscale_typings` el tipaje de algunos individuos puede no devolver resultados si contiene información de muchos loci o si alguno de ellos, especialmente DQ, ha sido previamente pasado a resolución serológica. En estos casos el programa elimina el tipaje correspondiente a DQB1 y repite la imputación. Si la imputación obtiene algún resultado este se guarda y se devuelve un mensaje de advertencia que indica el ID del individuo cuyo tipaje ha sido imputado ignorando el locus DQB1.
 -   En el caso de que al eliminar el locus DQB1 se siga sin obtener ningún resultado tras la imputación se devuelve un mensaje que indica el ID del individuo cuyos haplotipos no hayan podido ser imputados.
