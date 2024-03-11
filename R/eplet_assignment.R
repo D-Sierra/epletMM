@@ -1,12 +1,12 @@
 eplet_assignment <- function(hres_df, verified = "Yes"){
-  #Evalua que el argumento verief tome los valores "Yes" solo para eplets verificados por anticuerpo o "All" que incluye a todos
+  #Evalua que el argumento verified tome los valores "Yes" solo para eplets verificados por anticuerpo o "All" que incluye a todos
   allowed_values <- c("Yes", "All")
   verify <- match.arg(verified, allowed_values)
 
   #Inicialización del data frame
   eplet_assignment <- data.frame(Número = hres_df$Número,
-                                 setNames(data.frame(matrix(NA, nrow = nrow(hres_df), ncol = sum(!(names(hres_df) %in% c("Número", "min_loci_allowed", "Cw_ignored"))))),
-                                          paste0(names(hres_df)[!(names(hres_df) %in% c("Número", "min_loci_allowed", "Cw_ignored"))], "_eplet")))
+                                 setNames(data.frame(matrix(NA, nrow = nrow(hres_df), ncol = sum(!(names(hres_df) %in% c("Número","ID_Tx", "Sample", "min_loci_allowed", "Cw_ignored"))))),
+                                          paste0(names(hres_df)[!(names(hres_df) %in% c("Número","ID_Tx", "Sample", "min_loci_allowed", "Cw_ignored"))], "_eplet")))
 
   #Cargar la base de datos de eplets de HLA eplet registry
   df_eplets <- hlapro::load_eplet_registry()
@@ -18,8 +18,8 @@ eplet_assignment <- function(hres_df, verified = "Yes"){
 
   # Loop para asignar eplets a cada celda de eplet_assignment
   for (i in 1:nrow(hres_df)){
-    for (j in 4:ncol(hres_df)){ # j in 2:17
-      eplet_assignment[i, j-2] <- paste(hlapro::lookup_eplets(df_eplets, hres_df[i, j])[[1]], collapse = " ")
+    for (j in 6:ncol(hres_df)){
+      eplet_assignment[i, j-4] <- paste(hlapro::lookup_eplets(df_eplets, hres_df[i, j])[[1]], collapse = " ")
     }
   }
   #Convertimos todas las celdas vacias a NA

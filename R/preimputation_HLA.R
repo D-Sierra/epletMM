@@ -3,7 +3,7 @@ preimputation_HLA <- function(df = "mixed_reso"){
   #Loop para rebajar la resolución de alelos de intermedia a baja
   df_serology <- df
   for (i in 1:nrow(df_serology)) {
-    for (j in 2:ncol(df_serology)){
+    for (j in 4:ncol(df_serology)){
       if (grepl(":", df_serology[i, j])){
         df_serology[i,j] <- hlapro::get_serology(df[i,j])
       }
@@ -23,7 +23,7 @@ preimputation_HLA <- function(df = "mixed_reso"){
   #Añadimos a cada celda el prefijo de locus correspondiente (pe. A, B, C...)
   # Iterar sobre las filas y columnas del dataframe
   for (i in 1:nrow(df_serology)) {
-    for (j in 2:ncol(df_serology)) {
+    for (j in 4:ncol(df_serology)) {
 
       # Obtener el valor de la celda actual
       valor_celda <- df_serology[i, j]
@@ -57,7 +57,7 @@ preimputation_HLA <- function(df = "mixed_reso"){
   }
 
   loci_test <- data.frame(matrix(rep(NA,14), nrow = 1))
-  names(loci_test) <- names(df_serology[,-1])
+  names(loci_test) <- names(df_serology[,-c(1, 2, 3)])
   checks <- c("^A\\*\\d{1,2}$", "^A\\*\\d{1,2}$",
               "^B\\*\\d{1,2}$", "^B\\*\\d{1,2}$",
               "^Cw\\*\\d{1,2}$", "^Cw\\*\\d{1,2}$",
@@ -101,7 +101,7 @@ preimputation_HLA <- function(df = "mixed_reso"){
   }
 
   #Reordenamos las columnas de df
-  df %<>% select(Número, Cw_ignored, min_loci_allowed, everything())
+  df %<>% select(Número, ID_Tx, Sample, Cw_ignored, min_loci_allowed, everything())
 
   return(curated = list(df, df_serology, loci_test))
 }

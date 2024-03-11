@@ -70,6 +70,9 @@ modulab_filter <- function(x = "HLA_baja"){
       df[[col]][!is.na(df[[col]])] <- paste0(locus, df[[col]][!is.na(df[[col]])])
     }
   }
-  mixed_reso <- df
-  return(mixed_reso)
+  df$ID_Tx <- NA
+  df$Sample <- NA
+  df %<>% select(Número, ID_Tx, Sample, everything())
+
+  return(df)
 }

@@ -49,7 +49,7 @@ bulk_upscaling <- function(low_list = "low_list", df = "subdf1", haplotypes_path
     #Si el índice existe (>0) itera todas las columnas de imputed_df
     if (length(index_df) > 0) {
       for (col_name in names(imputed_df)[-1]) {
-        #Para no sobreescribir tipajes ya en int/alta si pone la condición de que solo se actualizan las celdas que no contengan ":" en df
+        #Para no sobreescribir tipajes ya en int/alta se pone la condición de que solo se actualizan las celdas que no contengan ":" en df
         if (!any(grepl(":", df[index_df, col_name]))) {
           df[index_df, col_name] <- imputed_df[i, col_name]
         }
@@ -78,7 +78,7 @@ bulk_upscaling <- function(low_list = "low_list", df = "subdf1", haplotypes_path
       if (length(index) == 1) {
         df[i, ifelse(j == 1, "DQA1", "DQA2")] <- equivalence_table[index, "DQA1"]
       } else if (length(index) > 1) {
-        index2 <- sapply(equivalence_table[index, "DRB1"], function(regex) any(grepl(regex, drb_value, perl = TRUE)))
+        index2 <- sapply(equivalence_table[index, "DRB1"], function(x) any(grepl(x, drb_value, perl = TRUE)))
         if (any(index2)) {
           df[i, ifelse(j == 1, "DQA1", "DQA2")] <- equivalence_table[index[index2], "DQA1"]
         } else {
