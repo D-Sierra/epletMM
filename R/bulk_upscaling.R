@@ -57,6 +57,8 @@ bulk_upscaling <- function(low_list = "low_list", df = "subdf1", haplotypes_path
     }
   }
 
+
+  #Imputacion de alelos DQA1 en alta resolución
   #Tabla de equivalencias para alelos DQB1, DRB1, DQA1
   equivalence_table <- data.frame(
     DQB1 = c(".*\\*02:01.*", ".*\\*02:02.*", ".*\\*02:02.*", ".*\\*03:01.*", ".*\\*03:01.*", ".*\\*03:02.*", ".*\\*03:03.*", ".*\\*03:03.*", ".*\\*03:19.*", ".*\\*04.*", ".*\\*04.*",
@@ -70,13 +72,17 @@ bulk_upscaling <- function(low_list = "low_list", df = "subdf1", haplotypes_path
   #Asignación de DQA1 en base al tipaje de DQB1 y DRB1
   for (i in 1:nrow(df)) {
     for (j in 1:2) {
-      dqb_value <- ifelse(j == 1, df[i, "DQB11"], df[i, "DQB12"])
-      drb_value <- paste(df[i, "DRB11"], ", ", df[i, "DRB12"])
+      dqb_value <- ifelse(j == 1, df[i, "DQB11"], df[i, "DQB12"]) #Para cada fila se evaluan ambas columnas del tipaje DQB1 por separado
+      drb_value <- paste(df[i, "DRB11"], ", ", df[i, "DRB12"])   #Para cada fila se concatena el valor de los dos alelos DRB1 para su evaluacion conjunta
 
+      #Para cada alelo DQB1 se encuentra en la tabla de equivalencias las filas que contienen ese alelo
       index <- which(sapply(equivalence_table[, "DQB1"], function(x) any(grepl(x, dqb_value, perl = TRUE))))
-
+      #Si solo se obtiene un unico indice es que no hay ambiguedad en la asignacion de DQA1
       if (length(index) == 1) {
         df[i, ifelse(j == 1, "DQA1", "DQA2")] <- equivalence_table[index, "DQA1"]
+      #Si el indice obtenido tiene mas de un valor entonces es que el alelo DQB1 se puede asignar a mas de un alelo DQA1 dependiendo de la presencia o no de un determinado alelo DRB1
+      #Mediante regex se evalua la presencia de los alelos de DRB1 que permitan resolver la ambiguedad en la tabla de equivalencias
+      #Se obtiene asi un unico indice de la tabla de equivalencias y se asigna el valor correspondiente de DQA1 a la columna del dataframe
       } else if (length(index) > 1) {
         index2 <- sapply(equivalence_table[index, "DRB1"], function(x) any(grepl(x, drb_value, perl = TRUE)))
         if (any(index2)) {
