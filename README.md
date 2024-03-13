@@ -34,7 +34,7 @@ Las funciones contenidas en este paquete están pensadas para realizar las sigui
   
 ## Esquema de flujo de trabajo
 
-<a href="https://D-sierra.github.io/epletMM/"><img src="man/figures/Pipeline de análisis.png" height="450" alt="pipeline" /></a>
+<a href="https://D-sierra.github.io/epletMM/"><img src="man/figures/Pipeline.png" height="450" alt="pipeline" /></a>
 ## Instalación
 
 ```{r}
