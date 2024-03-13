@@ -31,7 +31,7 @@ eplet_crossmatch <- function(eplet_df){
     #Itera por los valores úniocos de ID_Tx
     for (id_tx in unique(eplet_df$ID_Tx)) {
       #Para donantes y receptores obtiene los eplets de la columna correspondiente y los almacena en una nueva variable
-      receptor_vals <- unlist(strsplit(as.character(eplet_df[eplet_df$ID_Tx == id_tx & eplet_df$Sample == "Receptor", col]), " "))
+      receptor_vals <- unlist(strsplit(as.character(eplet_df[eplet_df$ID_Tx == id_tx & eplet_df$Sample == "Receptor", "HLA_all_eplets"]), " "))
       donante_vals <- unlist(strsplit(as.character(eplet_df[eplet_df$ID_Tx == id_tx & eplet_df$Sample == "Donor", col]), " "))
 
       #Obtenemos los eplets que contiene el donante y que no estan en el receptor, si es 0 se asigna NA y si no se concatena el resultado en un string
