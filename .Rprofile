@@ -7,7 +7,7 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
 library(devtools)
 
 # Instalar hlapro desde GitHub
-devtools::install_github("usuario/hlapro")
+devtools::install_github("D-Sierra/hlapro")
 
 
 require(magrittr)
