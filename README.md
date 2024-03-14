@@ -1,10 +1,6 @@
 
 # epletMM <a href="https://D-sierra.github.io/epletMM/"><img src="man/figures/hex.png" align="right" height="250" alt="hlapro website" /></a>
 
-<!-- badges: start -->
-  [![R-CMD-check](https://github.com/D-Sierra/epletMM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/D-Sierra/epletMM/actions/workflows/R-CMD-check.yaml)
-  <!-- badges: end -->
-
 Esta librería proporciona una serie de herramientas para trabajar con datos de tipajes HLA.
 
 Las funciones contenidas en este paquete están pensadas para realizar las siguientes operaciones:
