@@ -19,7 +19,8 @@ nefro_filter <- function(df){
 
   donors <- df[, which(names(df) == "NumTx" | names(df) == "NumHistoria" | grepl("^Don", names(df)))]
   donors$Sample <- "Donor"
-  donors$NumHistoria = paste0(donors$NumHistoria, "_donor")
+  donors <- donors %>%
+    mutate(NumHistoria = row_number())
   donors %<>% select(NumTx, NumHistoria, Sample, everything())
 
   #Comprobación del número de columnas de ambos dataframes
