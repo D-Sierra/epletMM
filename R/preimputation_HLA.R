@@ -5,7 +5,7 @@ preimputation_HLA <- function(df = "mixed_reso"){
   for (i in 1:nrow(df_serology)) {
     for (j in 4:ncol(df_serology)){
       if (grepl(":", df_serology[i, j])){
-        df_serology[i,j] <- hlapro::get_serology(df[i,j])
+        df_serology[i,j] <- hlapro::get_broad(df[i,j])
       }
     }
   }
